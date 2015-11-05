@@ -12,6 +12,8 @@ GPIO5 = 18
 
 GPIO.setmode(GPIO.BOARD) ## setting GPIO pin numbering to Board format --> Use Pin-Number, not GPIO number
 GPIO.setup(GPIO0, GPIO.OUT) ## Setting GPIO 0 on Pin 11 to Output mode
+GPIO.setup(GPIO1, GPIO.OUT) ## Setting GPIO 1 on Pin 12 to Output mode
+
 #Defining the index page
 urls = ('/', 'index')
 render = web.template.render('templates') #index.html is stored in '/templates' folder
@@ -45,7 +47,7 @@ class index:
             GPIO.output(GPIO0,False) #Turn of the LED
             print "LED0 is OFF" #prints the status in Pi's Terminal
         elif userData.btn == "btnLed1On":
-            GPIO.output(GPIO1,False) #Turn of the LED
+            GPIO.output(GPIO1,True) #Turn of the LED
             print "LED1 is OFF" #prints the status in Pi's Termina        
         elif userData.btn == "btnLed1Off":
             GPIO.output(GPIO1,False) #Turn of the LED
