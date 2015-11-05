@@ -3,8 +3,15 @@ import RPi.GPIO as GPIO
 
 from web import form
 
+GPIO0 = 11
+GPIO1 = 12
+GPIO2 = 13
+GPIO3 = 15
+GPIO4 = 16
+GPIO5 = 18
+
 GPIO.setmode(GPIO.BOARD) ## setting GPIO pin numbering to Board format
-GPIO.setup(7, GPIO.OUT) ## Setting GPIO Pin 7 to Output mode
+GPIO.setup(GPIO0, GPIO.OUT) ## Setting GPIO 0 on Pin 11 to Output mode
 #Defining the index page
 urls = ('/', 'index')
 render = web.template.render('templates') #index.html is stored in '/templates' folder
@@ -13,8 +20,8 @@ app = web.application(urls, globals())
 """ Defining the buttons. 'id' stands for HTML id of the element. 'value' is the value of the button as perceived by Python. 
     'html' is the text displayed in HTML page. 'class_' is HTML class"""
 my_form = form.Form(
- form.Button("btn", id="btnR", value="btnLed7On", html="LED on", class_="on"),
- form.Button("btn", id="btnG", value="btnLed7Off", html="LED off", class_="off"),
+ form.Button("btn", id="btnR", value="btnLed0On", html="LED0 on", class_="on"),
+ form.Button("btn", id="btnG", value="btnLed0Off", html="LED0 off", class_="off"),
  
 )
 
@@ -29,11 +36,11 @@ class index:
     def POST(self):
         # get the data submitted from the web form
         userData = web.input()
-        if userData.btn == "btnLed7On":
-            GPIO.output(7,True) #Turn on the LED
+        if userData.btn == "btnLed0On":
+            GPIO.output(GPIO0,True) #Turn on the LED
             print "LED is ON"   #prints the status in Pi's Terminal
-        elif userData.btn == "btnLed7Off":
-            GPIO.output(7,False) #Turn of the LED
+        elif userData.btn == "btnLed0Off":
+            GPIO.output(GPIO0,False) #Turn of the LED
             print "LED is OFF" #prints the status in Pi's Terminal
         raise web.seeother('/')
 # run
