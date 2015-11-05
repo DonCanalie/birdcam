@@ -13,8 +13,8 @@ app = web.application(urls, globals())
 """ Defining the buttons. 'id' stands for HTML id of the element. 'value' is the value of the button as perceived by Python. 
     'html' is the text displayed in HTML page. 'class_' is HTML class"""
 my_form = form.Form(
- form.Button("btn", id="btnR", value="btnLed7On", html="Turn LED on", class_="on"),
- form.Button("btn", id="btnG", value="btnLed7Off", html="Turn LED off", class_="off"),
+ form.Button("btn", id="btnR", value="btnLed7On", html="LED on", class_="on"),
+ form.Button("btn", id="btnG", value="btnLed7Off", html="LED off", class_="off"),
  
 )
 
@@ -29,10 +29,10 @@ class index:
     def POST(self):
         # get the data submitted from the web form
         userData = web.input()
-        if userData.btn == "on":
+        if userData.btn == "btnLed7On":
             GPIO.output(7,True) #Turn on the LED
             print "LED is ON"   #prints the status in Pi's Terminal
-        elif userData.btn == "off":
+        elif userData.btn == "btnLed7Off":
             GPIO.output(7,False) #Turn of the LED
             print "LED is OFF" #prints the status in Pi's Terminal
         raise web.seeother('/')
