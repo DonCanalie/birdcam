@@ -6,13 +6,8 @@ $def with (form, title)
 		<link rel="stylesheet" type="text/css" href="/static/main.css">
 		<link href="/static/bootstrap.css" rel="stylesheet">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<script>
-			function changePort() {
-				document.getElementById('stream').href = window.location.protocol + "//" + window.location.hostname + ":8080/?action=stream";
-			}
-		</script>
 	</head>
-	<center><body onload="changePort()">
+	<center><body>
 		<div class="container-fluid">
 		 	<div class="row-fluid">
 			    <div class="span1">
@@ -23,7 +18,7 @@ $def with (form, title)
 				</div>
 	    	<div class="content">
 	    		<div class="span8">				      	
-	    			<img alt="" id="stream" src=":8080/?action=stream" width="1280" height="720" />	       
+	    			<img alt="" src="http://birdcam.ddnss.de:8080/?action=stream" width="1280" height="720" />
 		    	</div>
 		    	<div class="span1">
 				<form class="form" method="post"> 
