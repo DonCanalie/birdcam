@@ -1,30 +1,28 @@
 $def with (form, title)
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<title>$title</title>
- <link rel="stylesheet" type="text/css" href="/static/main.css">
-<link href="/static/bootstrap.css" rel="stylesheet">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-<div class="container-fluid">
-  <div class="row-fluid">
-    <div class="span4">
-      <img src="/static/rpi.jpg" />
-      
-      </div>
-    <div class="content">
-    <div class="span8">
-      <p>This is an app to control the birdcam surveillance system using Raspberry Pi       
-      </p>
-<form class="form" method="post"> 
-        $:form.render()
-        </form>
-       
-    </div>
-    </div>
-  </div>
-</div>
-</body>
+	<head>
+		<title>$title</title>
+		<link rel="stylesheet" type="text/css" href="/static/main.css">
+		<link href="/static/bootstrap.css" rel="stylesheet">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		</head>
+	<body>
+		<div class="container-fluid">
+		  <div class="row-fluid">
+		    <div class="span4">
+		    	<!--img src="/static/rpi.jpg" /-->
+		    	<img alt="" src="http://raspberrypi2:8080/?action=stream" width="1280" height="960" />
+		    	</div>
+		    	<div class="content">
+			    	<div class="span8">
+				      	<p>This is an app to control the birdcam surveillance system using Raspberry Pi</p>
+						<form class="form" method="post"> 
+				        	$:form.render()
+				        </form>			       
+			    	</div>
+		    	</div>
+		  	</div>
+		</div>
+	</body>
 </html>
