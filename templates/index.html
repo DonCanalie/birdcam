@@ -9,20 +9,22 @@ $def with (form, title)
 		</head>
 	<center><body>
 		<div class="container-fluid">
-		  <div class="row-fluid">
-		    <div class="span10">
-		    	<!--img src="/static/rpi.jpg" /-->
-		    	<img alt="" src="http://raspberrypi2:8080/?action=stream" width="1280" height="960" />
+		 	<div class="row-fluid">
+			    <div class="span12">
+			    	<img src="/static/rpi.jpg" />
+			    </div>
+	    	<div class="content">
+	    		<div class="span10">				      	
+	    			<img alt="" src="http://raspberrypi2:8080/?action=stream" width="1280" height="960" />	       
 		    	</div>
-		    	<div class="content">
-			    	<div class="span2">
-				      	<p>This is an app to control the birdcam surveillance system using Raspberry Pi</p>
-						<form class="form" method="post"> 
-				        	$:form.render()
-				        </form>			       
-			    	</div>
+		    	<div class="span2">
+			      	<p>This is an app to control the birdcam surveillance system using Raspberry Pi</p>
+					<form class="form" method="post"> 
+			        	$:form.render()
+			        </form>			       
 		    	</div>
-		  	</div>
+	    	</div>
+			  	</div>
 		</div>
 	</body></center>
 </html>
