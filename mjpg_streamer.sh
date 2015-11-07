@@ -6,7 +6,10 @@
 
 PORT=8080
 FPS=15
+WIDTH=1280
+HEIGHT=720
+WWW=/usr/local/www
 
 export LD_LIBRARY_PATH=/usr/local/lib
 
-mjpg_streamer -i "input_raspicam.so -fps %FPS% -x 1280 -y 960" -o "output_http.so -w /usr/local/www -p %PORT%"
+mjpg_streamer -i "input_raspicam.so -fps $FPS -x $WIDTH -y $HEIGHT" -o "output_http.so -w $WWW -p $PORT"
