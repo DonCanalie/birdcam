@@ -22,10 +22,11 @@ app = web.application(urls, globals())
 """ Defining the buttons. 'id' stands for HTML id of the element. 'value' is the value of the button as perceived by Python. 
     'html' is the text displayed in HTML page. 'class_' is HTML class"""
 my_form = form.Form(
- form.Button("btn", id="btnR", value="btnLed0On", html="LED0 on", class_="on"),
- form.Button("btn", id="btnG", value="btnLed0Off", html="LED0 off", class_="off"),
- form.Button("btn", id="btnR", value="btnLed1On", html="LED1 on", class_="on"),
- form.Button("btn", id="btnG", value="btnLed1Off", html="LED1 off", class_="off"),
+                    open("http://raspberrypi2:8080/?action=stream"),
+                    form.Button("btn", id="btnR", value="btnLed0On", html="LED0 on", class_="on"),
+                    form.Button("btn", id="btnG", value="btnLed0Off", html="LED0 off", class_="off"),
+                    form.Button("btn", id="btnR", value="btnLed1On", html="LED1 on", class_="on"),
+                    form.Button("btn", id="btnG", value="btnLed1Off", html="LED1 off", class_="off"),
  
 )
 
