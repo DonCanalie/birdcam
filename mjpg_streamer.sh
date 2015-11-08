@@ -5,9 +5,9 @@
 # USB-Webcam. The script needs to be run with root access.
 
 PORT=8080
-FPS=5
+FPS=10
 WIDTH=640
-HEIGHT=360
+HEIGHT=400
 WWW=/usr/local/www
 
 export LD_LIBRARY_PATH=/usr/local/lib
