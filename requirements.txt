@@ -1,0 +1,4 @@
+# This file defines the required python packages for pip install.
+# Use "pip install -r requirements.txt" to install the required packages.
+gpio==0.1.2
+web.py==0.37
