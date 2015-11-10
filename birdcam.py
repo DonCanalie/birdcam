@@ -16,13 +16,9 @@ GPIO5 = 18
 
 #Defining the index page
 urls = ('/', 'index')
+
 render = web.template.render('templates') #index.html is stored in '/templates' folder
 
-#TODO: Das Umschalten zwischen den Webcams funktioniert zwar, jedoch muss das template ebenfalls eine variable
-#        webcam haben, die 1. einen standardwert hat und 2. mit einem button-klick, bzw einer variablen-aenderung hier
-#        ebenfalls geaendert wird.
-global webcam
-webcam = "1"
 app = web.application(urls, globals())
 
 """ Defining the buttons. 'id' stands for HTML id of the element. 'value' is the value of the button as perceived by Python. 
@@ -32,19 +28,25 @@ my_form = form.Form(
                     form.Button("btn", id="btnG1", value="btnLed0Off", html="LED0 off", class_="off"),
                     form.Button("btn", id="btnR2", value="btnLed1On", html="LED1 on", class_="on"),
                     form.Button("btn", id="btnG2", value="btnLed1Off", html="LED1 off", class_="off"),
-                    form.Button("btn", id="btnY1", value="btnWebcam1", html="Webcam 1", class_="cam"),
-                    form.Button("btn", id="btnY2", value="btnWebcam2", html="Webcam 2", class_="cam") 
+                    form.Button("btn", id="btnY1", value="btnWebcam1", html="Webcam 1", class_="cam"), 
+                    form.Button("btn", id="btnY2", value="btnWebcam2", html="Webcam 2", class_="cam"), 
 )
 
 # define the task of index page
-class index:    
+class index:     
+
     # rendering the HTML page
-    def GET(self):
-        form = my_form()
+    def GET(self):     
+        global form
+        form = my_form()  
+        webcam = "1"   
         return render.index(form, "Raspberry Pi LED Blink", webcam)
 
     # posting the data from the webpage to Pi
-    def POST(self):
+    def POST(self):   
+        global render     
+        global webcam
+                
         # get the data submitted from the web form
         userData = web.input()
         if userData.btn == "btnLed0On":
@@ -61,18 +63,13 @@ class index:
             print "LED1 is OFF" #prints the status in Pi's Terminal
         elif userData.btn == "btnWebcam1":
             print "Switched to Webcam 1" #prints the status in Pi's Terminal
-            webcam ="1"
-            form = my_form()
-#TODO: 'return' funktioniert hier zwar, aber der button klick sollte lediglich dazu fuehren
-#        dass dem template ein anderes attribut uebergeben wird. der rest sollte durch 'web.seeother(/)' geschehen
-            return render.index(form, "Raspberry Pi LED Blink", webcam)            
+            webcam ="1"         
         elif userData.btn == "btnWebcam2":
             print "Switched to Webcam 2" #prints the status in Pi's Terminal
-            webcam = "2"
-            form = my_form()
-            return render.index(form, "Raspberry Pi LED Blink", webcam)
+            webcam ="2"
                    
-        raise web.seeother('/')
+        #raise web.seeother('/')    
+        return render.index(form, "Raspberry Pi LED Blink", webcam)
 # run
 if __name__ == '__main__':
     app.run()
