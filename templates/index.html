@@ -1,4 +1,4 @@
-$def with (form, title)
+$def with (form, title, webcam)
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -10,21 +10,29 @@ $def with (form, title)
 	<center><body>
 		<div class="container-fluid">
 		 	<div class="row-fluid">
+		 		<div class="span1"> </div>
 			    <div class="span1">
 			    	<img src="/static/rpi.jpg" />
 			    </div>
 				<div class="span8">
 					<p>This is an app to control the birdcam surveillance system using Raspberry Pi</p>
 				</div>
+				<div class="span2"> </div>
 	    	<div class="content">
+	    		<div class="span2"> </div>
 	    		<div class="span8">				      	
-	    			<img alt="" src="http://birdcam.ddnss.de:8080/?action=stream" width="1280" height="720" />
+	    			<!-- img alt="" src="http://birdcam.ddnss.de:8080/?action=stream" width="1280" height="720" / -->	    			
+	    		$if webcam == "1":
+	    			<img alt ="" src="http://fotos.phodana.de/images/20080803200401_blumen.jpg" width="1280" height="720">
+	    		$if webcam == "2":
+	    			<img alt ="" src="http://www.blumen-salzmann.de/images/index/blumen-salzmann.jpg" width="1280" height="720">
 		    	</div>
 		    	<div class="span1">
-				<form class="form" method="post"> 
+					<form class="form" method="post"> 
 			        	$:form.render()
 			        </form>			       
 		    	</div>
+		    	<div class="span1"> </div>
 	    	</div>
 			  	</div>
 		</div>
