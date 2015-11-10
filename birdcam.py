@@ -19,8 +19,8 @@ urls = ('/', 'index')
 render = web.template.render('templates') #index.html is stored in '/templates' folder
 
 #TODO: Das Umschalten zwischen den Webcams funktioniert zwar, jedoch muss das template ebenfalls eine variable
-#        webcam haben, die 1. einen standardwert hat und 2. mit einem button-klick, bzw einer variablen-änderung hier
-#        ebenfalls geänder wird.
+#        webcam haben, die 1. einen standardwert hat und 2. mit einem button-klick, bzw einer variablen-aenderung hier
+#        ebenfalls geaendert wird.
 global webcam
 webcam = "1"
 app = web.application(urls, globals())
@@ -63,8 +63,8 @@ class index:
             print "Switched to Webcam 1" #prints the status in Pi's Terminal
             webcam ="1"
             form = my_form()
-#TODO: 'return' funktioniert hier zwar, aber der button klick sollte lediglich dazu führen
-#        dass dem template ein anderes attribut übergeben wird. der rest sollte durch 'web.seeother(/)' geschehen
+#TODO: 'return' funktioniert hier zwar, aber der button klick sollte lediglich dazu fuehren
+#        dass dem template ein anderes attribut uebergeben wird. der rest sollte durch 'web.seeother(/)' geschehen
             return render.index(form, "Raspberry Pi LED Blink", webcam)            
         elif userData.btn == "btnWebcam2":
             print "Switched to Webcam 2" #prints the status in Pi's Terminal
