@@ -6,6 +6,9 @@ import web
 
 from web import form
 
+SOCKET_IP = "0.0.0.0"
+SOCKET_PORT = 80
+
 GPIO0 = 11
 GPIO1 = 12
 GPIO2 = 13
@@ -81,5 +84,6 @@ class Index(object):
         return RENDER.index(form, "Raspberry Pi LED Blink", webcam)
 # run
 if __name__ == '__main__':
-    APP.run()
+    web.httpserver.runsimple(APP.wsgifunc(), (SOCKET_IP, SOCKET_PORT))
+    #APP.run()
 
