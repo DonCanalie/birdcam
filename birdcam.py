@@ -2,6 +2,7 @@
  which can be used to watch the webstreams running on a birdcam-surveillance-system.
  Moreover, there is the possibillity to control IR-Light-LED's to light the view. """
 import web
+import os
 #import RPi.GPIO as GPIO
 
 from web import form
@@ -41,6 +42,10 @@ CONTROLLER = form.Form(
     form.Button("btn", id="btnY2", value="btnWebcam2", html="Webcam 2", class_="cam"),
 )
 
+TOPLEFT = form.Form(
+    form.Button("btn", id="btnR3", value="btnReboot", html="Reboot", class_="off"),
+)
+
 class Index(object):
     """ define the task of index page """
     
@@ -50,10 +55,12 @@ class Index(object):
     def GET(self):
         """ rendering the HTML page """
         global webcam
-        global form
-        form = CONTROLLER()
+        global form1
+        global form2
+        form1 = CONTROLLER()
+        form2 = TOPLEFT()
         webcam = WEBCAM1
-        return RENDER.index(form, "Raspberry Pi LED Blink", webcam)
+        return RENDER.index(form1, form2, "Raspberry Pi LED Blink", webcam)
 
     def POST(self):
         """ posting the data from the webpage to Pi """
@@ -73,6 +80,9 @@ class Index(object):
         elif userdata.btn == "btnLed1Off":
 #            GPIO.output(GPIO1,False) #Turn of the LED
             print "LED1 is OFF" #prints the status in Pi's Terminal
+        elif userdata.btn == "btnReboot":
+            print "System is going to for reboot!" #prints the status in Pi's Terminal 
+            os.system("sudo reboot")           
         elif userdata.btn == "btnWebcam1":
             print "Switched to Webcam 1" #prints the status in Pi's Terminal
             webcam = WEBCAM1
@@ -81,7 +91,7 @@ class Index(object):
             webcam = WEBCAM2
 
         #raise web.seeother('/')
-        return RENDER.index(form, "Raspberry Pi LED Blink", webcam)
+        return RENDER.index(form1, form2, "Raspberry Pi LED Blink", webcam)
 # run
 if __name__ == '__main__':
     web.httpserver.runsimple(APP.wsgifunc(), (SOCKET_IP, SOCKET_PORT))

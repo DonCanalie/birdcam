@@ -1,4 +1,4 @@
-$def with (form, title, webcam)
+$def with (form1, form2, title, webcam)
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -17,8 +17,13 @@ $def with (form, title, webcam)
 				<div class="span8">
 					<p>This is an app to control the birdcam surveillance system using Raspberry Pi<br/>
 					You are watching Webcam $webcam</p>
-				</div>
-				<div class="span2"> </div>
+				</div>				
+				<div class="span1">
+					<form class="form" method="post"> 
+			        	$:form2.render()
+			        </form>			       
+		    	</div>
+		    	<div class="span1"> </div>
 	    	<div class="content">
 	    		<div class="span2"> </div>
 	    		<div class="span8">				      	
@@ -30,7 +35,7 @@ $def with (form, title, webcam)
 		    	</div>
 		    	<div class="span1">
 					<form class="form" method="post"> 
-			        	$:form.render()
+			        	$:form1.render()
 			        </form>			       
 		    	</div>
 		    	<div class="span1"> </div>

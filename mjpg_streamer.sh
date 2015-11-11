@@ -2,7 +2,7 @@
 # This script requires mjpg-streamer-experimental to be installted.
 # The difference to the non-experimental version is the raspicam support.
 # In production, this will not be needed, because it will be used a normal 
-# USB-Webcam. The script needs to be run with root access.
+# USB-Webcam.
 
 PORT=8080
 FPS=10
