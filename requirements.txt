@@ -1,5 +1,10 @@
 # This file defines the required python packages for pip install.
 # Use "pip install -r requirements.txt" to install the required packages.
+# On Windows, for pysqlite the Microsoft Visual C++ 9.0 Compile fpr Python is needed.
+# https://www.microsoft.com/en-us/download/details.aspx?id=44266
+# pysqlite requires libsqlite3-dev to be installed.
+# !!! Seems, that python 2.7 already contains pysqlite
 gpio==0.1.2
 web.py==0.37
 pylint
+#pysqlite

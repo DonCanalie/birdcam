@@ -1,4 +1,4 @@
-$def with (form1, form2, title, webcam)
+$def with (right, left, topright, title, webcam)
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -20,12 +20,16 @@ $def with (form1, form2, title, webcam)
 				</div>				
 				<div class="span1">
 					<form class="form" method="post"> 
-			        	$:form2.render()
+			        	$:topright.render()
 			        </form>			       
 		    	</div>
 		    	<div class="span1"> </div>
 	    	<div class="content">
-	    		<div class="span2"> </div>
+	    		<div class="span2">
+	    			<form class="form" method="post"> 
+			        	$:left.render()
+			        </form>	
+	    		</div>
 	    		<div class="span8">				      	
 	    			<!-- img alt="" src="http://birdcam.ddnss.de:8080/?action=stream" width="1280" height="720" / -->	    			
 	    		$if webcam == "1":
@@ -35,7 +39,7 @@ $def with (form1, form2, title, webcam)
 		    	</div>
 		    	<div class="span1">
 					<form class="form" method="post"> 
-			        	$:form1.render()
+			        	$:right.render()
 			        </form>			       
 		    	</div>
 		    	<div class="span1"> </div>
