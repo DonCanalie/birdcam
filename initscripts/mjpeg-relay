@@ -1,0 +1,76 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          supervisord
+# Required-Start:    $local_fs $network
+# Required-Stop:     $local_fs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Should-Start:		 $network
+# Should-Stop:		 $network
+# Short-Description: Starts mjpeg-relay daemon
+# Description:       Starts mjpeg-relay daemon serving a mjpeg-relay-server - see https://github.com/OliverF/mjpeg-relay
+### END INIT INFO
+
+DAEMON_PATH="/home/hendrik/mjpeg-relay"
+RELAY_PORT="40001"
+HTTP_PORT="40002"
+SOURCE_STREAM="http://raspberrypi2:8080/?action=stream"
+
+DAEMON=relay.py
+DAEMONOPTS="-p $RELAY_PORT -w $HTTP_PORT -q $SOURCE_STREAM"
+
+NAME="mjpeg-relay"
+DESC="mjpeg-relay daemon"
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+
+test -f "$DAEMON_PATH/$DAEMON" || exit 0
+
+case "$1" in
+start)
+	printf "%-50s" "Starting $NAME..."
+	cd $DAEMON_PATH
+	PID=`$DAEMON $DAEMONOPTS > /dev/null 2>&1 & echo $!`
+	#echo "Saving PID" $PID " to " $PIDFILE
+        if [ -z $PID ]; then
+            printf "%s\n" "Fail"
+        else
+            echo $PID > $PIDFILE
+            printf "%s\n" "Ok"
+        fi
+;;
+status)
+        printf "%-50s" "Checking $NAME..."
+        if [ -f $PIDFILE ]; then
+            PID=`cat $PIDFILE`
+            if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+                printf "%s\n" "Process dead but pidfile exists"
+            else
+                echo "Running"
+            fi
+        else
+            printf "%s\n" "Service not running"
+        fi
+;;
+stop)
+        printf "%-50s" "Stopping $NAME"
+            PID=`cat $PIDFILE`
+            cd $DAEMON_PATH
+        if [ -f $PIDFILE ]; then
+            kill -HUP $PID
+            printf "%s\n" "Ok"
+            rm -f $PIDFILE
+        else
+            printf "%s\n" "pidfile not found"
+        fi
+;;
+
+restart)
+  	$0 stop
+  	$0 start
+;;
+
+*)
+        echo "Usage: $0 {status|start|stop|restart}"
+        exit 1
+esac
