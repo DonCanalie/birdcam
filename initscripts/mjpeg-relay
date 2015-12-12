@@ -1,6 +1,6 @@
 #!/bin/bash
 ### BEGIN INIT INFO
-# Provides:          supervisord
+# Provides:          mjpeg-relay
 # Required-Start:    $local_fs $network
 # Required-Stop:     $local_fs $network
 # Default-Start:     2 3 4 5
@@ -30,7 +30,8 @@ case "$1" in
 start)
 	printf "%-50s" "Starting $NAME..."
 	cd $DAEMON_PATH
-	PID=`$DAEMON $DAEMONOPTS > /dev/null 2>&1 & echo $!`
+	`python $DAEMON $DAEMONOPTS > /dev/null 2>&1`
+	PID=ècho $!`
 	#echo "Saving PID" $PID " to " $PIDFILE
         if [ -z $PID ]; then
             printf "%s\n" "Fail"
