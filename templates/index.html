@@ -1,4 +1,4 @@
-$def with (right, left, topright, title, webcam)
+$def with (right, left, topright, title, webcam, center)
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -9,13 +9,21 @@ $def with (right, left, topright, title, webcam)
 	</head>
 	<center><body>
 		<div class="container-fluid">
+			<div class="page-header" style="background-color: green">
+				 <h1 class="header-logo">
+      				<span><a href="" title="birdcam">
+      					<img src="/static/rpi.png" width=90px height=101px style="align:left"/>
+      				</a>
+      				</span>
+      			</h1>	
+			    <h1>birdcam</h1>	
+				<h4>This is an app to control the birdcam surveillance system using Raspberry Pi</h4>
+			</div>
 		 	<div class="row-fluid">
 		   		<div class="span2">
-			    		<img src="/static/rpi.jpg" width=72px height=64px /></table>
 			    	</div>
 				<div class="span8">
-					<p>This is an app to control the birdcam surveillance system using Raspberry Pi<br/>
-					You are watching Webcam $webcam</p>
+					<p>You are watching Webcam $webcam</p>
 				</div>				
 				<div class="span2">
 					<form class="form" method="post"> 
@@ -30,11 +38,8 @@ $def with (right, left, topright, title, webcam)
 			        			$:left.render()
 			        		</form>	
 	    				</div>
-	    				<div class="span8">				      	
-	    					$if webcam == "1":
-	    						<img alt="Webcam Stream 1" style="border:2px black solid;" src="http://birdcam.dyndns.net:40001/?action=stream" width="1280" height="720" />
-	    					$if webcam == "2":
-							<img alt="Webcam Stream 2" style="border:2px black solid;" src="http://birdcam.dyndns.net:40002/?action=stream" width="1280" height="720" />
+	    				<div class="span8">	
+	    					<img alt="Center" style="border:2px black solid;" src="$center" width="100%" height="100%" />		
 		    			</div>
 		    			<div class="span2">
 						<form class="form" method="post"> 
