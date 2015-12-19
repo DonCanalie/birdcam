@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """ This script is used to publish a webapp, based on templates/index.html,
  which can be used to watch the webstreams running on a birdcam-surveillance-system.
  Moreover, there is the possibillity to control IR-Light-LED's to light the view. """
@@ -88,7 +89,7 @@ TOPRIGHT = form.Form(
 )
 
 class Logger(object):
-    def log(self, message):
+    def info(self, message):
         self.log(message, 'LOG')
     def debug(self, message):
         self.log(message, 'DEBUG')     
@@ -220,27 +221,27 @@ class Index(object):
         userdata = web.input()
         if userdata.btn == "btnLed0On":
  #           GPIO.output(GPIO0,True) #Turn on the LED
-            logger.log('Index.POST - LED0 is ON')   #prints the status in Pi's Terminal
+            logger.info('Index.POST - LED0 is ON')   #prints the status in Pi's Terminal
         elif userdata.btn == "btnLed0Off":
   #          GPIO.output(GPIO0,False) #Turn of the LED
-            logger.log('Index.POST - LED0 is OFF') #prints the status in Pi's Terminal
+            logger.info('Index.POST - LED0 is OFF') #prints the status in Pi's Terminal
         elif userdata.btn == "btnLed1On":
 #            GPIO.output(GPIO1,True) #Turn of the LED
-            logger.log('Index.POST - LED1 is ON') #prints the status in Pi's Terminal
+            logger.info('Index.POST - LED1 is ON') #prints the status in Pi's Terminal
         elif userdata.btn == "btnLed1Off":
 #            GPIO.output(GPIO1,False) #Turn of the LED
-            logger.log('Index.POST - LED1 is OFF') #prints the status in Pi's Terminal
+            logger.info('Index.POST - LED1 is OFF') #prints the status in Pi's Terminal
         elif userdata.btn == "btnReboot":
-            logger.log('Index.POST - System is going to for reboot!') #prints the status in Pi's Terminal 
+            logger.info('Index.POST - System is going to for reboot!') #prints the status in Pi's Terminal 
             os.system("sudo reboot")   
         elif userdata.btn =="btnRefreshClimate":
             setClimateData() # wird beim refresh eigentlich gemacht. alternativ: nur initial und sonst explizit ausfuehren
         elif userdata.btn == "btnWebcam1":
-            logger.log('Index.POST - Switched to Webcam 1') #prints the status in Pi's Terminal
+            logger.info('Index.POST - Switched to Webcam 1') #prints the status in Pi's Terminal
             webcam = WEBCAM1
             center = STREAM1
         elif userdata.btn == "btnWebcam2":
-            logger.log('Index.POST - Switched to Webcam 2') #prints the status in Pi's Terminal
+            logger.info('Index.POST - Switched to Webcam 2') #prints the status in Pi's Terminal
             webcam = WEBCAM2     
             center = STREAM2
         elif userdata.btn == "btnTimeline":
