@@ -257,9 +257,11 @@ class Index(object):
                 logger.debug('Index.POST.btnTimeLine.end - ' + end)                
             x = getClimateData("recorded", limit, start, end)
             y = getClimateData("temperature", limit, start, end)
+	    z = getClimateData("humidity", limit, start, end)
             logger.debug('Index.POST.btnTimeLine.x - ' + ''.join(str(r) for r in x))
             logger.debug('Index.POST.btnTimeLine.y - ' + ''.join(str(r) for r in y))
-            center = Climate().plot(x, y)
+	    logger.debug('Index.POST.btnTimeLine.z - ' + ''.join(str(r) for r in z))
+            center = Climate().plot(x, y, z)
             #raise web.seeother('/climate')
         
         print center

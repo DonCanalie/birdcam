@@ -1,18 +1,24 @@
 # Learn about API authentication here: https://plot.ly/python/getting-started
 # Find your api_key here: https://plot.ly/settings/api
+#
+# TODO: Zwei y-Achsen implementieren https://plot.ly/~Dreamshot/2596/temperature-co-2-records-from-vostok-antarctica/
 
 import plotly.plotly as py # plotly library
 import plotly.graph_objs as go
 
 class Climate(object):
     
-    def plot(self, recorded, temperature):
+    def plot(self, recorded, temperature, humidity):
                 
         data = [
             go.Scatter(
                 x=recorded,
                 y=temperature
-            )
+            ),
+	    go.Scatter(
+		x=recorded,
+		y=humidity
+	    )
         ]
         
         plot_url = py.plot(data, filename='date-axes')
