@@ -1,3 +1,4 @@
 # Ignore python compiled filed
 *.pyc
+*.db
 ddns_update*

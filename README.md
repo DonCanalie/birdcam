@@ -26,3 +26,12 @@ sudo crontab -e
 * 5 * * * <birdcam-path>/scripts/ddns_update.sh
 # Write current humidity and temperature to birdcam.db every 15 minutes
 */15 * * * * <birdcam-path>/scripts/dht22ToDB.sh
+
+# If you don't have a ddns_update.sh, create a new file with the following content:
+
+#!/bin/bash
+curl "<address-to-your-dyndns-hoster>/<the-hosters-update-script>?key=<your-update-key>&host=<your-hosts-comma-separated>"
+
+# for example try ddnss.de
+# curl "https://ddnss.de/upd.php?key=<your-update-key>&host=<your-hosts-comma-separated"
+
