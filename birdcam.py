@@ -33,8 +33,8 @@ GPIO5 = 18
 
 WEBCAM1 = "1"
 WEBCAM2 = "2"
-STREAM1 = "http://raspberrypi2:8080/?action=stream"
-STREAM2 = "http://raspberrypi2:8081/?action=stream"
+STREAM1 = "http://birdcam.dyndnss.net:8080/?action=stream"
+STREAM2 = "http://birdcam.dyndnss.net:8081/?action=stream"
 
 DHT_TYPE = 22
 DHT_SOURCE = GPIO4

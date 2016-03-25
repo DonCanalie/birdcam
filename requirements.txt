@@ -6,6 +6,7 @@
 # !!! Seems, that python 2.7 already contains pysqlite
 gpio==0.1.2
 web.py==0.37
+flup==1.0.3.dev-20110405
 pylint
 #pysqlite
 plotly

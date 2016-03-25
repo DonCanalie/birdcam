@@ -18,3 +18,11 @@ cp resources/lighttpd/conf-enabled/10-fastcgi.conf /etc/lighttpd/conf-enabled/10
 
 # Open /etc/lighttpd/lighttpd.conf and correct the document-root to your project- or www-folder
 server.document-root = "<www-folder>"
+
+# Configure cron-jobs for dyndns-update and climate-logging
+sudo crontab -e
+
+# Starting dyndns-update daily at 5 am
+* 5 * * * <birdcam-path>/scripts/ddns_update.sh
+# Write current humidity and temperature to birdcam.db every 15 minutes
+*/15 * * * * <birdcam-path>/scripts/dht22ToDB.sh
