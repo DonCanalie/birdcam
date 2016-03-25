@@ -1,7 +1,8 @@
-# This is an app to control the birdcam surveillance system using Raspberry Pi
+## This is an app to control the birdcam surveillance system using Raspberry Pi
 
-# Install Instructions:
+### Install Instructions:
 
+```
 apt-get install python lighttpd libfam0 spawn-fcgi
 
 git clone https://github.com/DonCanalie/birdcam
@@ -34,4 +35,4 @@ curl "<address-to-your-dyndns-hoster>/<the-hosters-update-script>?key=<your-upda
 
 # for example try ddnss.de
 # curl "https://ddnss.de/upd.php?key=<your-update-key>&host=<your-hosts-comma-separated"
-
+```
