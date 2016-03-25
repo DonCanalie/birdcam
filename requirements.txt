@@ -10,3 +10,4 @@ flup==1.0.3.dev-20110405
 pylint
 #pysqlite
 plotly
+adafruit_python_dht

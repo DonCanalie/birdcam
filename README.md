@@ -3,7 +3,7 @@
 ### Install Instructions:
 
 ```
-apt-get install python lighttpd libfam0 spawn-fcgi
+apt-get install python lighttpd libfam0 spawn-fcgi build-essential python-dev
 
 git clone https://github.com/DonCanalie/birdcam
 
