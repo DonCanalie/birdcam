@@ -15,10 +15,10 @@ class Climate(object):
                 x=recorded,
                 y=temperature
             ),
-	    go.Scatter(
-		x=recorded,
-		y=humidity
-	    )
+#	    go.Scatter(
+#		x=recorded,
+#		y=humidity
+#	    )
         ]
         
         plot_url = py.plot(data, filename='date-axes', auto_open=False)
