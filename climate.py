@@ -21,7 +21,7 @@ class Climate(object):
 	    )
         ]
         
-        plot_url = py.plot(data, filename='date-axes')
+        plot_url = py.plot(data, filename='date-axes', auto_open=False)
         
         plot_frame = """<iframe src=\"""" + plot_url + """.embed\"
                             height=\"600\" width=\"100%\"
