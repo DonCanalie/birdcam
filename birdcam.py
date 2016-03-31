@@ -75,13 +75,13 @@ RIGHT = form.Form(
 )
 
 LEFT = form.Form(
-    form.Textbox("txt1", web.form.notnull, description="Temperature:", size="1"),
-    form.Textbox("txt2", web.form.notnull, description="Humidity:", size="1"),
-    form.Textbox("txt3", web.form.notnull, description="recorded at ", size="1"),
-    form.Button("btn", id="btnG3", value="btnRefreshClimate", html="Refresh", class_="off"),
-    form.Button("btn", id="btnY3", value="btnTimeline", html="Timeline", class_="cam"),
-    form.Textbox("txt4", web.form.notnull, description="Start:", size="1"),
-    form.Textbox("txt5", web.form.notnull, description="End:", size="1"),    
+    form.Textbox("txt1", web.form.notnull, description="Temperature:", class_="input-mini"),
+    form.Textbox("txt2", web.form.notnull, description="Humidity:", class_="input-mini"),
+    form.Textbox("txt3", web.form.notnull, description="recorded at ", class_="input-medium"),
+    form.Button("btn", id="btnG3", value="btnRefreshClimate", html="Refresh", class_="off", style="margin-bottom: 20px;"),  
+    form.Textbox("txt4", web.form.notnull, description="Start:", class_="input-medium", id="txt4"),
+    form.Textbox("txt5", web.form.notnull, description="End:", class_="input-medium"),
+    form.Button("btn", id="btnY3", value="btnTimeline", html="Timeline", class_="cam")
 )
 
 TOPRIGHT = form.Form(
@@ -100,13 +100,14 @@ class Logger(object):
         if type == 'DEBUG' and DEBUG:
             valid = True
         if valid:
-            print  type + ' ' + datetime.now().strftime('%Y-%m-%d  %H:%M:%S') + ': ' + message     
+            print  type + ' ' + datetime.now().strftime('%Y-%m-%d %H:%M') + ': ' + message     
 
 def validate(date_text):
     result = True
-    logger = Logger()      
+    logger = Logger()     
     try:
-        datetime.datetime.strptime(date_text, '%Y-%m-%d  %H:%M:%S')
+        logger.debug('validate.date_text - ' + date_text)
+        datetime.datetime.strptime(date_text, '%Y-%m-%d %H:%M:%S')
         logger.debug('validate.date_text - ' + date_text + ' is valid')
     except:
         result = False
@@ -166,24 +167,6 @@ def setClimateData():
         left.txt3.value = row[0]
     return
 
-"""class Climate(object):
-    
-    def GET(self):
-        # Simply use this https://github.com/Pyplate/rpi_temp_logger
-        # https://plot.ly/python/time-series/
-        
-
-        data = [
-            go.Scatter(
-                x=['2013-10-04 22:23:00', '2013-11-04 22:23:00', '2013-12-04 22:23:00'],
-                y=[1, 3, 6]
-            )
-        ]
-        
-        plot_url = py.plot(data, filename='date-axes')
-        
-        return plot_frame"""
-
 class Index(object):
     """ define the task of index page """
     
@@ -232,7 +215,7 @@ class Index(object):
 #            GPIO.output(GPIO1,False) #Turn of the LED
             logger.info('Index.POST - LED1 is OFF') #prints the status in Pi's Terminal
         elif userdata.btn == "btnReboot":
-            logger.info('Index.POST - System is going to for reboot!') #prints the status in Pi's Terminal 
+            logger.info('Index.POST - System is going down for reboot!') #prints the status in Pi's Terminal 
             os.system("sudo reboot")   
         elif userdata.btn =="btnRefreshClimate":
             setClimateData() # wird beim refresh eigentlich gemacht. alternativ: nur initial und sonst explizit ausfuehren
@@ -249,19 +232,31 @@ class Index(object):
             end = -1
             limit = -1
             left.validates()
-            if validate(left.txt4.value) == True:
-                start = left.txt4.value                
-                logger.debug('Index.POST.btnTimeLine.start - ' + start)
-            if validate(left.txt5.value == True):
-                end = left.txt5.value
-                logger.debug('Index.POST.btnTimeLine.end - ' + end)                
+            
+#           s_value = left.txt4.value                 
+#            logger.debug('left.txt4.value - ' + s_value)
+#            if validate(s_value) == True:
+#                start = s_value                
+#                logger.debug('Index.POST.btnTimeLine.start - ' + start)
+                
+#            e_value = left.txt5.value
+#            logger.debug('left.txt5.value - ' + e_value)
+#            if validate(e_value == True):
+#                end = e_value
+#                logger.debug('Index.POST.btnTimeLine.end - ' + end)   
+                          
+            start = left.txt4.value
+            end = left.txt5.value
+            logger.debug('Index.POST.btnTimeLine.start - ' + start)
+            logger.debug('Index.POST.btnTimeLine.end - ' + end)
+                         
             x = getClimateData("recorded", limit, start, end)
             y = getClimateData("temperature", limit, start, end)
             logger.debug('Index.POST.btnTimeLine.x - ' + ''.join(str(r) for r in x))
             logger.debug('Index.POST.btnTimeLine.y - ' + ''.join(str(r) for r in y))
             center = Climate().plot(x, y)
             #raise web.seeother('/climate')
-        
+
         print center
         #raise web.seeother('/') # Geht hier nicht, da der Parameter 'webcam' sich geaendert hat
         return RENDER.index(right, left, topright, "Raspberry Pi LED Blink", webcam, center)
