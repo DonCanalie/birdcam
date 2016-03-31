@@ -167,6 +167,7 @@ padding-top:60px;
 	width:100px;
 	text-decoration:none;
 	text-align:center;
+	text-shadow:1px 1px 0px #810e05;
 }
 .cam:hover {
 	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
@@ -181,4 +182,17 @@ padding-top:60px;
 .cam:active {
 	position:relative;
 	top:1px;
+}
+.padding-left {
+	padding-left: 10px;
+}
+.padding-right {
+	padding-right: 10px;
+}
+.padding-center {
+	padding-left: 20px;
+	padding-right: 20px;
+}
+.centering {
+    float: none;
 }
