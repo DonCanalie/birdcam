@@ -78,8 +78,8 @@ RIGHT = form.Form(
 )
 
 LEFT = form.Form(
-    form.Textbox("txt1", web.form.notnull, description="Temperature:", class_="input-mini"),
-    form.Textbox("txt2", web.form.notnull, description="Humidity:", class_="input-mini"),
+    form.Textbox("txt1", web.form.notnull, description=u"Temperature [\xb0C]:", class_="input-mini"),
+    form.Textbox("txt2", web.form.notnull, description="Humidity [%]:", class_="input-mini"),
     form.Textbox("txt3", web.form.notnull, description="recorded at ", class_="input-medium"),
     form.Button("btn", id="btnG3", value="btnRefreshClimate", html="Refresh", class_="off pull-right", style="margin-bottom: 20px;"),  
     form.Textbox("txt4", web.form.notnull, description="Start:", class_="input-medium", id="txt4"),
