@@ -26,6 +26,15 @@ $def with (right, left, topright, title, webcam, center)
 				});
 			});
 		</script>
+		<!--script type="text/javascript">
+			jQuery( document ).ready(function() {
+				url = '$center';
+				var host = window.location.hostname;
+				url = url.replace("HOST", host);
+				$center = url;
+				document.getElementById("center_img").src = url;
+			});			
+		</script-->
 	</head>
 	<body>
 		<div class="container-fluid">
@@ -64,8 +73,8 @@ $def with (right, left, topright, title, webcam, center)
 				        		</form>	
 				        	</div>
 	    				</div>
-	    				<div class="span8 text-center padding-center">	
-	    					<img alt="Center" style="border:2px black solid; width: 100%; height: 100%;" src="$center" />		
+	    				<div class="span8 text-center padding-center">							
+	    					<img alt="Center" id="center_img" style="border:2px black solid; width: 100%; height: 100%; src="$center" />		
 		    			</div>		    			
 		    			<div class="span2 text-center padding-right">    				    			
 								<form class="form" method="post"> 

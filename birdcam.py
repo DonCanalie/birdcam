@@ -35,8 +35,9 @@ GPIO5 = 18
 WEBCAM1 = "the inner webcam"
 WEBCAM2 = "the outer webcam"
 CLIMATEPLOT = "the climate-recordings"
-STREAM1 = "http://birdcam.dyndnss.net:8080/?action=stream"
-STREAM2 = "http://birdcam.dyndnss.net:8081/?action=stream"
+
+STREAM1 = "HOST:8080/?action=stream"
+STREAM2 = "HOST:8081/?action=stream"
 
 DHT_TYPE = 22
 DHT_SOURCE = GPIO4
@@ -195,7 +196,7 @@ class Index(object):
         left = LEFT()
         topright = TOPRIGHT()        
         webcam = WEBCAM1  
-        center = STREAM1 
+        center = STREAM1.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
         
         setClimateData()
                 
@@ -267,12 +268,12 @@ class Index(object):
             except:
                 center = "https://plot.ly/~DonCanalie/4.png"
             #raise web.seeother('/climate')
-
-        print center
+		
+	center = center.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
+        logger.debug('center - ' + center)
         #raise web.seeother('/') # Geht hier nicht, da der Parameter 'webcam' sich geaendert hat
         return RENDER.index(right, left, topright, "Raspberry Pi LED Blink", webcam, center)
 # run
 if __name__ == '__main__':
     #web.httpserver.runsimple(APP.wsgifunc(), (SOCKET_IP, SOCKET_PORT))
     APP.run()
-
