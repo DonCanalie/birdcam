@@ -118,9 +118,10 @@ def validate(date_text):
 def getDBCursor():
     global db
     global DATABASE
-    if os.path.islink(DATABASE) == True:
-        DATABASE = os.readlink(DATABASE)
-    db = sqlite3.connect(DATABASE)
+#    if os.path.islink(DATABASE) == True:
+#        DATABASE = os.path.realpath(DATABASE)
+    path = os.path.realpath(DATABASE)
+    db = sqlite3.connect(path)
     cursor = db.cursor()
     return cursor
 
