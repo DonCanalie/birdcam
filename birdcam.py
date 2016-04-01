@@ -14,6 +14,7 @@ from __builtin__ import True
 import RPi.GPIO as GPIO
 # https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code/tree/master/Adafruit_DHT_Driver_Python
 #import dhtreader
+import readDHT22
 
 """evtl fastcgi statt webpi verwenden, wie hier beschrieben http://davstott.me.uk/index.php/2013/03/17/raspberry-pi-controlling-gpio-from-the-web/"""
 from web import form
@@ -107,7 +108,7 @@ def validate(date_text):
     result = True
     logger = Logger()     
     try:
-        parsed = datetime.strptime(date_text, '%Y-%m-%d  %H:%M:%S')
+        datetime.strptime(date_text, '%Y-%m-%d  %H:%M:%S')
         logger.debug('validate.date_text - ' + date_text + ' is valid')
     except:
         result = False
@@ -116,6 +117,9 @@ def validate(date_text):
 
 def getDBCursor():
     global db
+    global DATABASE
+    if os.path.islink(DATABASE) == True:
+        DATABASE = os.readlink(DATABASE)
     db = sqlite3.connect(DATABASE)
     cursor = db.cursor()
     return cursor
@@ -157,11 +161,18 @@ def getClimateData(columns = "recorded, temperature, humidity", limit = -1, star
     #logger.debug('getClimateData.result - ' + ''.join(str(r) for r in result))
     return result
 
-def setClimateData():
-    climate_cur = getClimateData("recorded, temperature, humidity", "1")
+def setClimateData(getCurrent = False):
+    logger = Logger()
+    if getCurrent == False:
+        climate_cur = getClimateData("recorded, temperature, humidity", "1")
+    else:
+        c_cur = readDHT22.getCurrentClimate(True)
+        climate_cur = [ c_cur ]   
+
     if len(climate_cur) > 0:
         row = climate_cur[0]
-        left.txt1.value = row[1]
+        logger.debug('setClimateData.climate_cur[0] - ' + ''.join(str(r) for r in row))
+	left.txt1.value = row[1]
         left.get('txt2').value = row[2]
         left.txt3.value = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f').strftime('%Y-%m-%d %H:%M:%S')
     return
@@ -214,7 +225,7 @@ class Index(object):
             logger.info('Index.POST - System is going down for reboot!') #prints the status in Pi's Terminal 
             os.system("sudo reboot")   
         elif userdata.btn =="btnRefreshClimate":
-            setClimateData() # wird beim refresh eigentlich gemacht. alternativ: nur initial und sonst explizit ausfuehren
+            setClimateData(True) # wird beim refresh eigentlich gemacht. alternativ: nur initial und sonst explizit ausfuehren
         elif userdata.btn == "btnWebcam1":
             logger.info('Index.POST - Switched to Webcam 1') #prints the status in Pi's Terminal
             webcam = WEBCAM1
