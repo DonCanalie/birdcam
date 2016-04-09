@@ -18,6 +18,8 @@ import readDHT22
 
 """evtl fastcgi statt webpi verwenden, wie hier beschrieben http://davstott.me.uk/index.php/2013/03/17/raspberry-pi-controlling-gpio-from-the-web/"""
 from web import form
+# this is for debug-information - watch http://stackoverflow.com/questions/242485/starting-python-debugger-automatically-on-error
+import pdb, traceback, sys
 
 DEBUG = True
 LOG = True
@@ -126,6 +128,11 @@ def getDBCursor():
     cursor = db.cursor()
     return cursor
 
+def getHtmlImg(src, replaceHost = False):
+    if replaceHost == True:
+        src = src.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
+    return '<img alt="Center" id="center_img" style="border:2px black solid; width: 100%; height: 100%; src="' + src + '" />'
+
 def getClimateData(columns = "recorded, temperature, humidity", limit = -1, start = -1, end = -1):
     """ TODO: Evtl. auf dht22 umbauen fuer ganz aktuellen zugriff. Haengt jedoch davon ab, wie schnell der Sensor anwortet. 
         Sonst besser wie gehabt aus der DB lesen """
@@ -196,7 +203,7 @@ class Index(object):
         left = LEFT()
         topright = TOPRIGHT()        
         webcam = WEBCAM1  
-        center = STREAM1.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
+        center = getHtmlImg(STREAM1, True)
         
         setClimateData()
                 
@@ -231,11 +238,11 @@ class Index(object):
         elif userdata.btn == "btnWebcam1":
             logger.info('Index.POST - Switched to Webcam 1') #prints the status in Pi's Terminal
             webcam = WEBCAM1
-            center = STREAM1
+            center = getHtmlImg(STREAM1, True)
         elif userdata.btn == "btnWebcam2":
             logger.info('Index.POST - Switched to Webcam 2') #prints the status in Pi's Terminal
-            webcam = WEBCAM2     
-            center = STREAM2
+            webcam = WEBCAM2  
+            center = getHtmlImg(STREAM2, True)
         elif userdata.btn == "btnTimeline":
             start = -1
             end = -1
@@ -265,11 +272,16 @@ class Index(object):
             
             try:
                 center = Climate().plot(x, y, z)
+                logger.debug(center)
             except:
-                center = "https://plot.ly/~DonCanalie/4.png"
+                type, value, tb = sys.exc_info()
+                traceback.print_exc()
+                pdb.post_mortem(tb)
+                center = getHtmlImg("https://plot.ly/~DonCanalie/4.png")
+                logger.debug("Exception on line 273")
             #raise web.seeother('/climate')
 		
-	center = center.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
+	    center = center.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
         logger.debug('center - ' + center)
         #raise web.seeother('/') # Geht hier nicht, da der Parameter 'webcam' sich geaendert hat
         return RENDER.index(right, left, topright, "Raspberry Pi LED Blink", webcam, center)
