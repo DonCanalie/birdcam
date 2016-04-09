@@ -7,10 +7,10 @@ import os
 import json
 import sqlite3
 import plotly.plotly as py # plotly library
-import plotly.graph_objs as go
 from climate import Climate
 from datetime import datetime
 from __builtin__ import True
+#import gpio as GPIO
 import RPi.GPIO as GPIO
 # https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code/tree/master/Adafruit_DHT_Driver_Python
 #import dhtreader
@@ -26,6 +26,8 @@ LOG = True
 
 SOCKET_IP = "0.0.0.0"
 SOCKET_PORT = 80
+
+HEADER_TEXT = "birdcam surveillance system"
 
 GPIO0 = 11
 GPIO1 = 12
@@ -133,7 +135,7 @@ def getHtmlImg(src, replaceHost = False):
         src = src.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
     return '<img alt="Center" id="center_img" style="border:2px black solid; width: 100%; height: 100%; src="' + src + '" />'
 
-def getClimateData(columns = "recorded, temperature, humidity", limit = -1, start = -1, end = -1):
+def getClimateData(columns = "datetime(recorded, 'localtime'), temperature, humidity", limit = -1, start = -1, end = -1):
     """ TODO: Evtl. auf dht22 umbauen fuer ganz aktuellen zugriff. Haengt jedoch davon ab, wie schnell der Sensor anwortet. 
         Sonst besser wie gehabt aus der DB lesen """
     logger = Logger()       
@@ -144,13 +146,13 @@ def getClimateData(columns = "recorded, temperature, humidity", limit = -1, star
     parameters = []
         
     if start >= 0:
-        where = " WHERE recorded >= (?)" 
+        where = " WHERE datetime(recorded, 'localtime') >= (?)" 
         parameters.append(start) 
     if end >= 0:
         if where != -1:
-            where += " AND recorded <= (?)"            
+            where += " AND datetime(recorded, 'localtime') <= (?)"            
         else:
-            where = " WHERE recorded <= (?)"            
+            where = " WHERE datetime(recorded, 'localtime') <= (?)"            
         parameters.append(end) 
     if where != -1:
         commandtext += where
@@ -173,7 +175,7 @@ def getClimateData(columns = "recorded, temperature, humidity", limit = -1, star
 def setClimateData(getCurrent = False):
     logger = Logger()
     if getCurrent == False:
-        climate_cur = getClimateData("recorded, temperature, humidity", "1")
+        climate_cur = getClimateData("datetime(recorded, 'localtime'), temperature, humidity", "1")
     else:
         c_cur = readDHT22.getCurrentClimate(True)
         climate_cur = [ c_cur ]   
@@ -183,7 +185,8 @@ def setClimateData(getCurrent = False):
         logger.debug('setClimateData.climate_cur[0] - ' + ''.join(str(r) for r in row))
 	left.txt1.value = row[1]
         left.get('txt2').value = row[2]
-        left.txt3.value = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f').strftime('%Y-%m-%d %H:%M:%S')
+        left.txt3.value = row[0]
+        #left.txt3.value = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f').strftime('%Y-%m-%d %H:%M:%S')
     return
 
 class Index(object):
@@ -207,7 +210,7 @@ class Index(object):
         
         setClimateData()
                 
-        return RENDER.index(right, left, topright, "Raspberry Pi LED Blink", webcam, center)
+        return RENDER.index(right, left, topright, HEADER_TEXT, webcam, center)
 
     def POST(self):
         """ posting the data from the webpage to Pi """
@@ -264,7 +267,7 @@ class Index(object):
             logger.debug('Index.POST.btnTimeLine.start - ' + start)
             logger.debug('Index.POST.btnTimeLine.end - ' + end)
                          
-            x = getClimateData("recorded", limit, start, end)
+            x = getClimateData("datetime(recorded, 'localtime')", limit, start, end)
             y = getClimateData("temperature", limit, start, end)
             z = getClimateData("humidity", limit, start, end)
             
@@ -278,13 +281,11 @@ class Index(object):
                 traceback.print_exc()
                 pdb.post_mortem(tb)
                 center = getHtmlImg("https://plot.ly/~DonCanalie/4.png")
-                logger.debug("Exception on line 273")
-            #raise web.seeother('/climate')
 		
 	    center = center.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
         logger.debug('center - ' + center)
         #raise web.seeother('/') # Geht hier nicht, da der Parameter 'webcam' sich geaendert hat
-        return RENDER.index(right, left, topright, "Raspberry Pi LED Blink", webcam, center)
+        return RENDER.index(right, left, topright, HEADER_TEXT, webcam, center)
 # run
 if __name__ == '__main__':
     #web.httpserver.runsimple(APP.wsgifunc(), (SOCKET_IP, SOCKET_PORT))
