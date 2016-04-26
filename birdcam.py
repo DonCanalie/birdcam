@@ -133,7 +133,7 @@ def getDBCursor():
 def getHtmlImg(src, replaceHost = False):
     if replaceHost == True:
         src = src.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
-    return '<img alt="Center" id="center_img" style="border:2px black solid; width: 100%; height: 100%; src="' + src + '" />'
+    return '<img alt="Center" id="center_img" style="border:2px black solid; width: 100%; height: 100%;" src="' + src + '" />'
 
 def getClimateData(columns = "datetime(recorded, 'localtime'), temperature, humidity", limit = -1, start = -1, end = -1):
     """ TODO: Evtl. auf dht22 umbauen fuer ganz aktuellen zugriff. Haengt jedoch davon ab, wie schnell der Sensor anwortet. 
