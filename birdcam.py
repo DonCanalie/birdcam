@@ -6,6 +6,7 @@ import web
 import os
 import json
 import sqlite3
+import urllib
 import plotly.plotly as py # plotly library
 from climate import Climate
 from datetime import datetime
@@ -135,6 +136,21 @@ def getHtmlImg(src, replaceHost = False):
         src = src.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
     return '<img alt="Center" id="center_img" style="border:2px black solid; width: 100%; height: 100%;" src="' + src + '" />'
 
+def getClientTimeZoneByIP():
+    logger = Logger()
+    ip = web.ctx.ip
+    logger.debug('getClientTimeZoneByIP - ip: ' + ip)
+    query = 'http://api.ipinfodb.com/v3/ip-city/?key=3cfa2a5f9e962fd8ee9d5204ba3ce86cd47feb93f85ed537daf112bad4228ede&ip=' + ip
+    logger.debug('getClientTimeZoneByIP - query: ' + query)
+    response = urllib.urlopen(query)
+    response_plain = response.read()
+    logger.debug('getClientTimeZoneByIP - response_plain: ' + response_plain)
+    timezone = response_plain.split(";")[-1]
+    if timezone == '-':
+        timezone = 'localtime'
+    logger.debug('getClientTimeZoneByIP - timezone: ' + timezone)
+    return timezone
+
 def getClimateData(columns = "datetime(recorded, 'localtime'), temperature, humidity", limit = -1, start = -1, end = -1):
     """ TODO: Evtl. auf dht22 umbauen fuer ganz aktuellen zugriff. Haengt jedoch davon ab, wie schnell der Sensor anwortet. 
         Sonst besser wie gehabt aus der DB lesen """
@@ -144,15 +160,17 @@ def getClimateData(columns = "datetime(recorded, 'localtime'), temperature, humi
     orderby = " ORDER BY recorded DESC"
     where = -1    
     parameters = []
+    
+    tz = getClientTimeZoneByIP()
         
     if start >= 0:
-        where = " WHERE datetime(recorded, 'localtime') >= (?)" 
+        where = " WHERE datetime(recorded, '" + tz + "') >= (?)" 
         parameters.append(start) 
     if end >= 0:
         if where != -1:
-            where += " AND datetime(recorded, 'localtime') <= (?)"            
+            where += " AND datetime(recorded, '" + tz + "') <= (?)"            
         else:
-            where = " WHERE datetime(recorded, 'localtime') <= (?)"            
+            where = " WHERE datetime(recorded, '" + tz + "') <= (?)"            
         parameters.append(end) 
     if where != -1:
         commandtext += where
@@ -174,8 +192,11 @@ def getClimateData(columns = "datetime(recorded, 'localtime'), temperature, humi
 
 def setClimateData(getCurrent = False):
     logger = Logger()
+    
+    tz = getClientTimeZoneByIP()
+    
     if getCurrent == False:
-        climate_cur = getClimateData("datetime(recorded, 'localtime'), temperature, humidity", "1")
+        climate_cur = getClimateData("datetime(recorded, '" + tz + "'), temperature, humidity", "1")
     else:
         c_cur = readDHT22.getCurrentClimate(True)
         climate_cur = [ c_cur ]   
@@ -267,7 +288,9 @@ class Index(object):
             logger.debug('Index.POST.btnTimeLine.start - ' + start)
             logger.debug('Index.POST.btnTimeLine.end - ' + end)
                          
-            x = getClimateData("datetime(recorded, 'localtime')", limit, start, end)
+            tz = getClientTimeZoneByIP()
+                         
+            x = getClimateData("datetime(recorded, '" + tz + "')", limit, start, end)
             y = getClimateData("temperature", limit, start, end)
             z = getClimateData("humidity", limit, start, end)
             
