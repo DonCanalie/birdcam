@@ -9,7 +9,7 @@ import sqlite3
 import urllib
 import plotly.plotly as py # plotly library
 from climate import Climate
-from datetime import datetime
+from datetime import datetime, timedelta
 from __builtin__ import True
 #import gpio as GPIO
 import RPi.GPIO as GPIO
@@ -199,6 +199,18 @@ def setClimateData(getCurrent = False):
         climate_cur = getClimateData("datetime(recorded, '" + tz + "'), temperature, humidity", "1")
     else:
         c_cur = readDHT22.getCurrentClimate(True)
+        
+        if tz != 'localtime':
+            h = int(tz[1:3])
+            m = int(tz[4:])
+            delta = timedelta(hours=h, minutes=m)
+            recorded = datetime.strptime(c_cur[0], '%Y-%m-%d %H:%M:%S')
+            if tz[0] == "+":
+                recorded += delta
+            else:
+                recorded -= delta
+            c_cur[0] = str(recorded)
+            
         climate_cur = [ c_cur ]   
 
     if len(climate_cur) > 0:
