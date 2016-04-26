@@ -204,12 +204,12 @@ def setClimateData(getCurrent = False):
             h = int(tz[1:3])
             m = int(tz[4:])
             delta = timedelta(hours=h, minutes=m)
-            recorded = datetime.strptime(c_cur[0], '%Y-%m-%d %H:%M:%S')
+            recorded = datetime.strptime(c_cur[0], '%Y-%m-%d %H:%M:%S.%f')
             if tz[0] == "+":
                 recorded += delta
             else:
                 recorded -= delta
-            c_cur[0] = str(recorded)
+            c_cur = [ datetime.strftime(recorded, '%Y-%m-%d %H:%M:%S'), c_cur[1], c_cur[2] ]
             
         climate_cur = [ c_cur ]   
 
