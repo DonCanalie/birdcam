@@ -3,6 +3,10 @@
 ### Install Instructions:
 
 ```
+# The following Firmware-Upgrade should defenitely be run to fix problems, 
+# that may occur with the cameras and make the Raspberry Pi stop working
+rpi-update  
+
 apt-get install python lighttpd libfam0 spawn-fcgi build-essential python-dev
 
 git clone https://github.com/DonCanalie/birdcam
