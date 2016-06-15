@@ -39,7 +39,6 @@ curl "<address-to-your-dyndns-hoster>/<the-hosters-update-script>?key=<your-upda
 
 # for example try ddnss.de
 # curl "https://ddnss.de/upd.php?key=<your-update-key>&host=<your-hosts-comma-separated"
-```
 
 # Enable IP-forwarding by editing /etc/sysctl.conf and uncomment:
 net.ipv4.ip_forward = 1
@@ -65,5 +64,4 @@ sudo sh -c "iptables-save > /etc/iptables.rules"
   
 # On your client, your have to add a static rule for accessing the lte-stick's webinterface
 route add <lte-sticks netaddress> mask 255.255.255.0 <birdcam's lan-ipaddress>
-
-
+```
