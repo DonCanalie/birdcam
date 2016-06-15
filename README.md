@@ -40,3 +40,30 @@ curl "<address-to-your-dyndns-hoster>/<the-hosters-update-script>?key=<your-upda
 # for example try ddnss.de
 # curl "https://ddnss.de/upd.php?key=<your-update-key>&host=<your-hosts-comma-separated"
 ```
+
+# Enable IP-forwarding by editing /etc/sysctl.conf and uncomment:
+net.ipv4.ip_forward = 1
+
+# Save and enable changes with
+sysctl -p /etc/sysctl.conf
+
+# Restart networking with
+service networking restart
+
+# Optionally set iptables-rules for accessing the lte-stick's webinterface over lan
+sudo iptables -A PREROUTING -t nat -p tcp -m tcp --dport <lan port> -j DNAT --to-destination <ip-address of the lte-stick's webinterface>:80/24
+sudo iptables -t nat -A POSTROUTING -p tcp -m tcp -s <ip-address of the lte-stick's webinterface>/24 --sport 80 -j SNAT --to-source <lan ip-address>
+sudo iptables -A FORWARD -m state -p tcp -d <ip-address of the lte-stick's webinterface>/24 --dport 80 --state NEW,ESTABLISHED,RELATED -j ACCEPT
+
+# Save iptables-rules
+sudo sh -c "iptables-save > /etc/iptables.rules"
+
+# /etc/network/interface-rule for bringing iptables-rules up, when lan-interface ist coming up
+# Add this to /etc/network/interface
+<your lan-interfaces's config>
+  pre-up iptables-restore < /etc/iptables.rules
+  
+# On your client, your have to add a static rule for accessing the lte-stick's webinterface
+route add <lte-sticks netaddress> mask 255.255.255.0 <birdcam's lan-ipaddress>
+
+
