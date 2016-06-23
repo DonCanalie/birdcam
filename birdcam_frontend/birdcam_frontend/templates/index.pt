@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="birdcam">
+	<head>
+		<link type="text/css" rel="stylesheet" href="/static/css/controls.css">
+		<link type="text/css" rel="stylesheet" href="/static/bootstrap.css">
+
+		<link type="text/css" rel="stylesheet" href="/static/dest/css/bootstrap.min.css">
+        <link type="text/css" rel="stylesheet" href="/static/css/controls.css">
+
+        <script type="text/javascript" src="/static/js/ie8-hacks.js"></script>
+        <script type="text/javascript" src="/static/js/moment.min.js"></script>
+        <script type="text/javascript" src="/static/js/jquery-1.12.2.min.js"></script>
+		<script type="text/javascript" src="/static/js/angular-1.5.2/angular.min.js"></script>
+        <script type="text/javascript" src="/static/dest/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/static/js/app.js"></script>
+
+		<title>{{title}}</title>
+	</head>
+	<body ng-controller="ngBirdCam">
+		<header role="banner">
+			<div class="container">
+				<nav class="navbar navbar-inverse navbar-static-top" style="margin:0px; ">
+					<div class="navbar-header">
+						<a class="navbar-brand"><span class="glyphicon glyphicon-camera" aria-hidden="true"></span> {{title}}</a>
+					</div>
+				</nav>
+			</div>
+		</header>
+		<main role="main">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<div class="page-header">
+							<h4>This is an app to control the birdcam surveillance system using Raspberry Pi</h4>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-sm-12">
+						<p class="bg-primary center_control">You are watching WEBCAM {{act_webcam}}</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+						<div class="form-group form-group-sm">
+							<label for="txtTemperature">Temperature</label>
+							<input type="text" class="form-control" id="txtTemperature">
+							<label for="txtHumidity">Humidity</label>
+							<input type="text" class="form-control" id="txtHumidity">
+							<label for="txtRecordedAT">recorded at	</label>
+							<input type="text" class="form-control" id="txtRecordedAT">
+							<button ng-click="Refresh_Click()" type="button" class="btn btn-block btn-warning">Refresh</button>
+  						</div>
+  						<div class="form-group form-group-sm">
+							<label for="txtStart">Start</label>
+							<input type="text" class="form-control" id="txtStart">
+							<label for="txtEnd">End</label>
+							<input type="text" class="form-control" id="txtEnd">
+							<button ng-click="Timeline_Click()" type="button" class="btn btn-block btn-primary">Timeline</button>
+						</div>
+					</div>
+					<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+						<a href="#" class="thumbnail">
+							<img alt="Center" src=""/>
+						</a>
+					</div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+						<div class="btn-group-vertical btn-block" role="group">
+  							<button ng-click="Reboot_Click()" type="button" class="btn btn-warning ">Reboot</button>
+							<button ng-click="Led1_Click()" type="button" ng-class="{'btn-success': led1 == 1, 'btn-danger': led1 < 1 }" class="btn">LED 0 {{led1_text}}</button>
+							<button ng-click="Led2_Click()" type="button" ng-class="{'btn-success': led2 == 1, 'btn-danger': led2 < 1 }" class="btn">LED 1 {{led2_text}}</button>
+							<button ng-click="Webcam1_Click()" type="button" ng-class="{'btn-success': act_webcam == 1, 'btn-danger': act_webcam != 1 }" class="btn">WEBCAM 1</button>
+							<button ng-click="Webcam2_Click()" type="button" ng-class="{'btn-success': act_webcam == 2, 'btn-danger': act_webcam != 2 } " class="btn">WEBCAM 2</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	</body>
+</html>
