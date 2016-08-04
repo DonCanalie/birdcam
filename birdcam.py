@@ -12,10 +12,10 @@ from climate import Climate
 from datetime import datetime, timedelta
 from __builtin__ import True
 #import gpio as GPIO
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
 # https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code/tree/master/Adafruit_DHT_Driver_Python
 #import dhtreader
-import readDHT22
+#import readDHT22
 
 """evtl fastcgi statt webpi verwenden, wie hier beschrieben http://davstott.me.uk/index.php/2013/03/17/raspberry-pi-controlling-gpio-from-the-web/"""
 from web import form
@@ -57,14 +57,17 @@ with open('./plotly_config.json') as config_file:
 #dhtreader.init()
 
 # GPIO.BOARD --> Use Pin-Number, not GPIO number
-GPIO.setmode(GPIO.BOARD) ## setting GPIO pin numbering to Board format
-GPIO.setup(GPIO0, GPIO.OUT) ## Setting GPIO 0 on Pin 11 to Output mode
-GPIO.setup(GPIO1, GPIO.OUT) ## Setting GPIO 1 on Pin 12 to Output mode
+#GPIO.setmode(GPIO.BOARD) ## setting GPIO pin numbering to Board format
+#GPIO.setup(GPIO0, GPIO.OUT) ## Setting GPIO 0 on Pin 11 to Output mode
+#GPIO.setup(GPIO1, GPIO.OUT) ## Setting GPIO 1 on Pin 12 to Output mode
 
 #Defining the urls
 URLS = (
-    "/", "Index", 
-    "/climate", "Climate"
+    "/", "Index",
+    "/sensor", "Sensor",
+    "/climate", "Climate",
+    "/cams", "Cams",
+    "/leds", "Leds"
 )
 
 RENDER = web.template.render('templates') #index.html is stored in '/templates' folder
@@ -190,6 +193,7 @@ def getClimateData(columns = "datetime(recorded, 'localtime'), temperature, humi
     #logger.debug('getClimateData.result - ' + ''.join(str(r) for r in result))
     return result
 
+
 def setClimateData(getCurrent = False):
     logger = Logger()
     
@@ -198,7 +202,7 @@ def setClimateData(getCurrent = False):
     if getCurrent == False:
         climate_cur = getClimateData("datetime(recorded, '" + tz + "'), temperature, humidity", "1")
     else:
-        c_cur = readDHT22.getCurrentClimate(True)
+        #c_cur = readDHT22.getCurrentClimate(True)
         
         if tz != 'localtime':
             h = int(tz[1:3])
@@ -222,6 +226,7 @@ def setClimateData(getCurrent = False):
         #left.txt3.value = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f').strftime('%Y-%m-%d %H:%M:%S')
     return
 
+
 class Index(object):
     """ define the task of index page """
 
@@ -243,7 +248,7 @@ class Index(object):
         
         setClimateData()
                 
-        return RENDER.index(right, left, topright, HEADER_TEXT, webcam, center)
+        return RENDER.front()
 
     def POST(self):
         """ posting the data from the webpage to Pi """
@@ -255,16 +260,16 @@ class Index(object):
         # get the data submitted from the web form
         userdata = web.input()
         if userdata.btn == "btnLed0On":
-            GPIO.output(GPIO0,True) #Turn on the LED
+            #GPIO.output(GPIO0,True) #Turn on the LED
             logger.info('Index.POST - LED0 is ON')   #prints the status in Pi's Terminal
         elif userdata.btn == "btnLed0Off":
-            GPIO.output(GPIO0,False) #Turn of the LED
+            #GPIO.output(GPIO0,False) #Turn of the LED
             logger.info('Index.POST - LED0 is OFF') #prints the status in Pi's Terminal
         elif userdata.btn == "btnLed1On":
-            GPIO.output(GPIO1,True) #Turn of the LED
+            #GPIO.output(GPIO1,True) #Turn of the LED
             logger.info('Index.POST - LED1 is ON') #prints the status in Pi's Terminal
         elif userdata.btn == "btnLed1Off":
-            GPIO.output(GPIO1,False) #Turn of the LED
+            #GPIO.output(GPIO1,False) #Turn of the LED
             logger.info('Index.POST - LED1 is OFF') #prints the status in Pi's Terminal
         elif userdata.btn == "btnReboot":
             logger.info('Index.POST - System is going down for reboot!') #prints the status in Pi's Terminal 
@@ -321,6 +326,79 @@ class Index(object):
         logger.debug('center - ' + center)
         #raise web.seeother('/') # Geht hier nicht, da der Parameter 'webcam' sich geaendert hat
         return RENDER.index(right, left, topright, HEADER_TEXT, webcam, center)
+
+
+class Cams(object):
+    def GET(self):
+        web.header('Content-Type', 'application/json')
+        return json.dumps({'act_cam': 2})
+
+    def POST(self):
+        site_data = json.loads(web.data())
+        if site_data['cam'] == '1':
+            #SET CAM ON OR OFF
+            print 'ON OFF'
+        if site_data['cam'] == '2':
+            # SET CAM ON OR OFF
+            print 'ON OFF'
+
+        web.header('Content-Type', 'application/json')
+        return json.dumps({'status': 'OK'})
+
+
+class Leds(object):
+    def GET(self):
+        web.header('Content-Type', 'application/json')
+        return json.dumps({'inner': 1, 'outer': 1})
+
+    def POST(self):
+        site_data = json.loads(web.data())
+
+        if site_data['light'] == '1':
+            #SET LED ON OR OFF
+            print 'ON OFF'
+        if site_data['light'] == '0':
+            # SET LED ON OR OFF
+            print 'ON OFF'
+
+        web.header('Content-Type', 'application/json')
+        return json.dumps({'status': 'OK'})
+
+
+class Sensor(object):
+    def GET(self):
+        logger = Logger()
+        site_data = web.input()
+        refresh = site_data.refresh
+        logger.debug(str(refresh))
+        tz = getClientTimeZoneByIP()
+        # c_cur = readDHT22.getCurrentClimate(True)
+        #
+        # if tz != 'localtime':
+        #     h = int(tz[1:3])
+        #     m = int(tz[4:])
+        #     delta = timedelta(hours=h, minutes=m)
+        #     recorded = datetime.strptime(c_cur[0], '%Y-%m-%d %H:%M:%S.%f')
+        #     if tz[0] == "+":
+        #         recorded += delta
+        #     else:
+        #         recorded -= delta
+        #     c_cur = [datetime.strftime(recorded, '%Y-%m-%d %H:%M:%S'), c_cur[1], c_cur[2]]
+        #
+        # climate_cur = [c_cur]
+
+        temp = -1
+        hum = -1
+        rec = -1
+        # if len(climate_cur) > 0:
+        #     row = climate_cur[0]
+        #     temp = row[1]
+        #     hum = row[2]
+        #     rec = row[0]
+        web.header('Content-Type', 'application/json')
+        return json.dumps({'temp': temp, 'hum': hum, 'rec': rec})
+
+
 # run
 if __name__ == '__main__':
     #web.httpserver.runsimple(APP.wsgifunc(), (SOCKET_IP, SOCKET_PORT))

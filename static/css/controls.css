@@ -1,0 +1,17 @@
+.Textarea
+{
+    max-width:100%;
+}
+.Pager
+{
+    float:right;
+}
+.filter_right
+{
+    float:right;
+
+}
+.center_control
+{
+    text-align: center;
+}
