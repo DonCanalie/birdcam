@@ -1,0 +1,18 @@
+# /etc/default/mjpg_streamer
+## Defaults for MJPG-Streamer init.d script
+# Author:      Thomas Maetz
+# Article URL: http://webprosa.de/howto-webcam-mit-mjpg-streamer-als-netzwerkkamera-nutzen/
+# Script URL:  http://webprosa.de/wp-content/uploads/2012/03/mjpg_streamer.default.txt
+
+# Set ENABLED to 1 to enable mjpg_streamer's init-script
+ENABLED=1
+
+# Configuration of the input/output plugin
+# More information: http://wiki.ubuntuusers.de/MJPG-Streamer#Plugins
+INPUT_PLUGIN="input_uvc.so -d /dev/video0 -r 640x480"
+OUTPUT_PLUGIN="output_http.so -p 8080 -w /usr/local/www -p 8080"
+
+# The daemon should never be run as root. It is recommended to run it
+# under the website user id (usually www-data:www-data) to prevent file
+# ownership issues.
+USER="www-data:www-data"

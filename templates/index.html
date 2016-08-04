@@ -26,6 +26,15 @@ $def with (right, left, topright, title, webcam, center)
 				});
 			});
 		</script>
+		<!--script type="text/javascript">
+			jQuery( document ).ready(function() {
+				url = '$center';
+				var host = window.location.hostname;
+				url = url.replace("HOST", host);
+				$center = url;
+				document.getElementById("center_img").src = url;
+			});			
+		</script-->
 	</head>
 	<body>
 		<div class="container-fluid">
@@ -43,32 +52,36 @@ $def with (right, left, topright, title, webcam, center)
 			</div>
 		 	<div class="row-fluid">
 		   		<div class="span2">
-			    	</div>
+			    </div>
 				<div class="span8">
-					<p class="text-center">You are watching Webcam $webcam</p>
+					<p class="text-center">You are watching $webcam</p>
 				</div>				
-				<div class="span2">
-					<form class="form" method="post"> 
-			        		$:topright.render()
-			        	</form>			       
-		    		</div>
+				<div class="span2 padding-right">
+					<div class="pull-right">
+						<form class="form" method="post"> 
+				        		$:topright.render()
+				        </form>			       
+			    	</div>
+		    	</div>
 			</div>
 			<div class="row-fluid">		    	
 				<!--div class="content"-->
-	    				<div class="span2">
-	    					<form class="form" method="post"> 
-			        			$:left.render()
-			        		</form>	
+	    				<div class="span2 padding-left">
+		    				<div class="text-left">
+		    					<form class="form" method="post"> 
+				        			$:left.render()
+				        		</form>	
+				        	</div>
 	    				</div>
-	    				<div class="span8">	
-	    					<img alt="Center" style="border:2px black solid;" src="$center" width="1280" height="720" />		
+	    				<div class="span8 text-center padding-center">							
+	    					$:center		
+		    			</div>		    			
+		    			<div class="span2 text-center padding-right">    				    			
+								<form class="form" method="post"> 
+				        			$:right.render()
+				        		</form>	
 		    			</div>
-		    			<div class="span2">
-						<form class="form" method="post"> 
-			        			$:right.render()
-			        		</form>			       
-		    			</div>
-	    			<!--/div-->
+	    		<!--/div-->
 			</div>
 		</div>
 	</body>

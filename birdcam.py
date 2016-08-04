@@ -6,23 +6,29 @@ import web
 import os
 import json
 import sqlite3
+import urllib
 import plotly.plotly as py # plotly library
-import plotly.graph_objs as go
 from climate import Climate
-from datetime import datetime
+from datetime import datetime, timedelta
 from __builtin__ import True
+#import gpio as GPIO
 #import RPi.GPIO as GPIO
 # https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code/tree/master/Adafruit_DHT_Driver_Python
 #import dhtreader
+#import readDHT22
 
 """evtl fastcgi statt webpi verwenden, wie hier beschrieben http://davstott.me.uk/index.php/2013/03/17/raspberry-pi-controlling-gpio-from-the-web/"""
 from web import form
+# this is for debug-information - watch http://stackoverflow.com/questions/242485/starting-python-debugger-automatically-on-error
+import pdb, traceback, sys
 
 DEBUG = True
 LOG = True
 
 SOCKET_IP = "0.0.0.0"
 SOCKET_PORT = 80
+
+HEADER_TEXT = "birdcam surveillance system"
 
 GPIO0 = 11
 GPIO1 = 12
@@ -31,10 +37,12 @@ GPIO3 = 15
 GPIO4 = 16
 GPIO5 = 18
 
-WEBCAM1 = "1"
-WEBCAM2 = "2"
-STREAM1 = "http://birdcam.dyndnss.net:8080/?action=stream"
-STREAM2 = "http://birdcam.dyndnss.net:8081/?action=stream"
+WEBCAM1 = "the inner webcam"
+WEBCAM2 = "the outer webcam"
+CLIMATEPLOT = "the climate-recordings"
+
+STREAM1 = "HOST:8080/?action=stream"
+STREAM2 = "HOST:8081/?action=stream"
 
 DHT_TYPE = 22
 DHT_SOURCE = GPIO4
@@ -55,8 +63,11 @@ with open('./plotly_config.json') as config_file:
 
 #Defining the urls
 URLS = (
-    "/", "Index", 
-    "/climate", "Climate"
+    "/", "Index",
+    "/sensor", "Sensor",
+    "/climate", "Climate",
+    "/cams", "Cams",
+    "/leds", "Leds"
 )
 
 RENDER = web.template.render('templates') #index.html is stored in '/templates' folder
@@ -67,21 +78,21 @@ APP = web.application(URLS, globals())
     'html' is the text displayed in HTML page. 'class_' is HTML class"""    
 RIGHT = form.Form(
     form.Button("btn", id="btnR1", value="btnLed0On", html="LED0 on", class_="on"),
-    form.Button("btn", id="btnG1", value="btnLed0Off", html="LED0 off", class_="off"),
+    form.Button("btn", id="btnG1", value="btnLed0Off", html="LED0 off", class_="off", style="margin-bottom: 20px;"),
     form.Button("btn", id="btnR2", value="btnLed1On", html="LED1 on", class_="on"),
-    form.Button("btn", id="btnG2", value="btnLed1Off", html="LED1 off", class_="off"),
+    form.Button("btn", id="btnG2", value="btnLed1Off", html="LED1 off", class_="off", style="margin-bottom: 20px;"),
     form.Button("btn", id="btnY1", value="btnWebcam1", html="Webcam 1", class_="cam"),
     form.Button("btn", id="btnY2", value="btnWebcam2", html="Webcam 2", class_="cam"),
 )
 
 LEFT = form.Form(
-    form.Textbox("txt1", web.form.notnull, description="Temperature:", class_="input-mini"),
-    form.Textbox("txt2", web.form.notnull, description="Humidity:", class_="input-mini"),
+    form.Textbox("txt1", web.form.notnull, description=u"Temperature [\xb0C]:", class_="input-mini"),
+    form.Textbox("txt2", web.form.notnull, description="Humidity [%]:", class_="input-mini"),
     form.Textbox("txt3", web.form.notnull, description="recorded at ", class_="input-medium"),
-    form.Button("btn", id="btnG3", value="btnRefreshClimate", html="Refresh", class_="off", style="margin-bottom: 20px;"),  
+    form.Button("btn", id="btnG3", value="btnRefreshClimate", html="Refresh", class_="off pull-right", style="margin-bottom: 20px;"),  
     form.Textbox("txt4", web.form.notnull, description="Start:", class_="input-medium", id="txt4"),
     form.Textbox("txt5", web.form.notnull, description="End:", class_="input-medium"),
-    form.Button("btn", id="btnY3", value="btnTimeline", html="Timeline", class_="cam")
+    form.Button("btn", id="btnY3", value="btnTimeline", html="Timeline", class_="cam pull-right")
 )
 
 TOPRIGHT = form.Form(
@@ -106,8 +117,7 @@ def validate(date_text):
     result = True
     logger = Logger()     
     try:
-        logger.debug('validate.date_text - ' + date_text)
-        datetime.datetime.strptime(date_text, '%Y-%m-%d %H:%M:%S')
+        datetime.strptime(date_text, '%Y-%m-%d  %H:%M:%S')
         logger.debug('validate.date_text - ' + date_text + ' is valid')
     except:
         result = False
@@ -116,11 +126,35 @@ def validate(date_text):
 
 def getDBCursor():
     global db
-    db = sqlite3.connect(DATABASE)
+    global DATABASE
+#    if os.path.islink(DATABASE) == True:
+#        DATABASE = os.path.realpath(DATABASE)
+    path = os.path.realpath(DATABASE)
+    db = sqlite3.connect(path)
     cursor = db.cursor()
     return cursor
 
-def getClimateData(columns = "recorded, temperature, humidity", limit = -1, start = -1, end = -1):
+def getHtmlImg(src, replaceHost = False):
+    if replaceHost == True:
+        src = src.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
+    return '<img alt="Center" id="center_img" style="border:2px black solid; width: 100%; height: 100%;" src="' + src + '" />'
+
+def getClientTimeZoneByIP():
+    logger = Logger()
+    ip = web.ctx.ip
+    logger.debug('getClientTimeZoneByIP - ip: ' + ip)
+    query = 'http://api.ipinfodb.com/v3/ip-city/?key=3cfa2a5f9e962fd8ee9d5204ba3ce86cd47feb93f85ed537daf112bad4228ede&ip=' + ip
+    logger.debug('getClientTimeZoneByIP - query: ' + query)
+    response = urllib.urlopen(query)
+    response_plain = response.read()
+    logger.debug('getClientTimeZoneByIP - response_plain: ' + response_plain)
+    timezone = response_plain.split(";")[-1]
+    if timezone == '-':
+        timezone = 'localtime'
+    logger.debug('getClientTimeZoneByIP - timezone: ' + timezone)
+    return timezone
+
+def getClimateData(columns = "datetime(recorded, 'localtime'), temperature, humidity", limit = -1, start = -1, end = -1):
     """ TODO: Evtl. auf dht22 umbauen fuer ganz aktuellen zugriff. Haengt jedoch davon ab, wie schnell der Sensor anwortet. 
         Sonst besser wie gehabt aus der DB lesen """
     logger = Logger()       
@@ -129,15 +163,17 @@ def getClimateData(columns = "recorded, temperature, humidity", limit = -1, star
     orderby = " ORDER BY recorded DESC"
     where = -1    
     parameters = []
+    
+    tz = getClientTimeZoneByIP()
         
     if start >= 0:
-        where = " WHERE recorded >= (?)" 
+        where = " WHERE datetime(recorded, '" + tz + "') >= (?)" 
         parameters.append(start) 
     if end >= 0:
         if where != -1:
-            where += " AND recorded <= (?)"            
+            where += " AND datetime(recorded, '" + tz + "') <= (?)"            
         else:
-            where = " WHERE recorded <= (?)"            
+            where = " WHERE datetime(recorded, '" + tz + "') <= (?)"            
         parameters.append(end) 
     if where != -1:
         commandtext += where
@@ -146,32 +182,53 @@ def getClimateData(columns = "recorded, temperature, humidity", limit = -1, star
         parameters.append(limit)
     commandtext += orderby
     logger.debug('getClimateData.commandtext - ' + commandtext)
-    logger.debug('getClimateData.parameters - ' + ''.join(str(p) for p in parameters))
+    logger.debug('getClimateData.parameters - ' + ' '.join(str(p) for p in parameters))
     if (len(parameters) > 0):
         cursor.execute(commandtext, parameters)
     else:
         cursor.execute(commandtext)
     
     result = cursor.fetchall()
-    #print result
     db.close()
-    logger.debug('getClimateData.result - ' + ''.join(str(r) for r in result))
+    #logger.debug('getClimateData.result - ' + ''.join(str(r) for r in result))
     return result
 
-def setClimateData():
-    climate_cur = getClimateData("recorded, temperature, humidity", "1")
+
+def setClimateData(getCurrent = False):
+    logger = Logger()
+    
+    tz = getClientTimeZoneByIP()
+    
+    if getCurrent == False:
+        climate_cur = getClimateData("datetime(recorded, '" + tz + "'), temperature, humidity", "1")
+    else:
+        #c_cur = readDHT22.getCurrentClimate(True)
+        
+        if tz != 'localtime':
+            h = int(tz[1:3])
+            m = int(tz[4:])
+            delta = timedelta(hours=h, minutes=m)
+            recorded = datetime.strptime(c_cur[0], '%Y-%m-%d %H:%M:%S.%f')
+            if tz[0] == "+":
+                recorded += delta
+            else:
+                recorded -= delta
+            c_cur = [ datetime.strftime(recorded, '%Y-%m-%d %H:%M:%S'), c_cur[1], c_cur[2] ]
+            
+        climate_cur = [ c_cur ]   
+
     if len(climate_cur) > 0:
         row = climate_cur[0]
-        left.txt1.value = row[1]
+        logger.debug('setClimateData.climate_cur[0] - ' + ''.join(str(r) for r in row))
+	left.txt1.value = row[1]
         left.get('txt2').value = row[2]
         left.txt3.value = row[0]
+        #left.txt3.value = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S.%f').strftime('%Y-%m-%d %H:%M:%S')
     return
+
 
 class Index(object):
     """ define the task of index page """
-    
-#    def __init__(self):
-#        self.webcam ) 
 
     def GET(self):
         """ rendering the HTML page """
@@ -187,11 +244,11 @@ class Index(object):
         left = LEFT()
         topright = TOPRIGHT()        
         webcam = WEBCAM1  
-        center = STREAM1 
+        center = getHtmlImg(STREAM1, True)
         
         setClimateData()
                 
-        return RENDER.index(right, left, topright, "Raspberry Pi LED Blink", webcam, center)
+        return RENDER.front()
 
     def POST(self):
         """ posting the data from the webpage to Pi """
@@ -203,65 +260,146 @@ class Index(object):
         # get the data submitted from the web form
         userdata = web.input()
         if userdata.btn == "btnLed0On":
- #           GPIO.output(GPIO0,True) #Turn on the LED
+            #GPIO.output(GPIO0,True) #Turn on the LED
             logger.info('Index.POST - LED0 is ON')   #prints the status in Pi's Terminal
         elif userdata.btn == "btnLed0Off":
-  #          GPIO.output(GPIO0,False) #Turn of the LED
+            #GPIO.output(GPIO0,False) #Turn of the LED
             logger.info('Index.POST - LED0 is OFF') #prints the status in Pi's Terminal
         elif userdata.btn == "btnLed1On":
-#            GPIO.output(GPIO1,True) #Turn of the LED
+            #GPIO.output(GPIO1,True) #Turn of the LED
             logger.info('Index.POST - LED1 is ON') #prints the status in Pi's Terminal
         elif userdata.btn == "btnLed1Off":
-#            GPIO.output(GPIO1,False) #Turn of the LED
+            #GPIO.output(GPIO1,False) #Turn of the LED
             logger.info('Index.POST - LED1 is OFF') #prints the status in Pi's Terminal
         elif userdata.btn == "btnReboot":
             logger.info('Index.POST - System is going down for reboot!') #prints the status in Pi's Terminal 
             os.system("sudo reboot")   
         elif userdata.btn =="btnRefreshClimate":
-            setClimateData() # wird beim refresh eigentlich gemacht. alternativ: nur initial und sonst explizit ausfuehren
+            setClimateData(True) # wird beim refresh eigentlich gemacht. alternativ: nur initial und sonst explizit ausfuehren
         elif userdata.btn == "btnWebcam1":
             logger.info('Index.POST - Switched to Webcam 1') #prints the status in Pi's Terminal
             webcam = WEBCAM1
-            center = STREAM1
+            center = getHtmlImg(STREAM1, True)
         elif userdata.btn == "btnWebcam2":
             logger.info('Index.POST - Switched to Webcam 2') #prints the status in Pi's Terminal
-            webcam = WEBCAM2     
-            center = STREAM2
+            webcam = WEBCAM2  
+            center = getHtmlImg(STREAM2, True)
         elif userdata.btn == "btnTimeline":
             start = -1
             end = -1
             limit = -1
             left.validates()
             
-#           s_value = left.txt4.value                 
-#            logger.debug('left.txt4.value - ' + s_value)
-#            if validate(s_value) == True:
-#                start = s_value                
-#                logger.debug('Index.POST.btnTimeLine.start - ' + start)
+            s_value = left.txt4.value                 
+            if validate(s_value) == True:
+                start = s_value   
+            else:
+                start = "1970-01-01 00:00:00"            
                 
-#            e_value = left.txt5.value
-#            logger.debug('left.txt5.value - ' + e_value)
-#            if validate(e_value == True):
-#                end = e_value
-#                logger.debug('Index.POST.btnTimeLine.end - ' + end)   
+            e_value = left.txt5.value
+            if validate(e_value) == True:
+                end = e_value
+            else:
+                end = "9999-12-31 23:59:59"
                           
-            start = left.txt4.value
-            end = left.txt5.value
             logger.debug('Index.POST.btnTimeLine.start - ' + start)
             logger.debug('Index.POST.btnTimeLine.end - ' + end)
                          
-            x = getClimateData("recorded", limit, start, end)
+            tz = getClientTimeZoneByIP()
+                         
+            x = getClimateData("datetime(recorded, '" + tz + "')", limit, start, end)
             y = getClimateData("temperature", limit, start, end)
-            logger.debug('Index.POST.btnTimeLine.x - ' + ''.join(str(r) for r in x))
-            logger.debug('Index.POST.btnTimeLine.y - ' + ''.join(str(r) for r in y))
-            center = Climate().plot(x, y)
-            #raise web.seeother('/climate')
-
-        print center
+            z = getClimateData("humidity", limit, start, end)
+            
+            webcam = CLIMATEPLOT + ' between ' + start + ' and ' + end
+            
+            try:
+                center = Climate().plot(x, y, z)
+                logger.debug(center)
+            except:
+                type, value, tb = sys.exc_info()
+                traceback.print_exc()
+                pdb.post_mortem(tb)
+                center = getHtmlImg("https://plot.ly/~DonCanalie/4.png")
+		
+	    center = center.replace('HOST', "http:" + web.ctx.homedomain.split(":")[1])
+        logger.debug('center - ' + center)
         #raise web.seeother('/') # Geht hier nicht, da der Parameter 'webcam' sich geaendert hat
-        return RENDER.index(right, left, topright, "Raspberry Pi LED Blink", webcam, center)
+        return RENDER.index(right, left, topright, HEADER_TEXT, webcam, center)
+
+
+class Cams(object):
+    def GET(self):
+        web.header('Content-Type', 'application/json')
+        return json.dumps({'act_cam': 2})
+
+    def POST(self):
+        site_data = json.loads(web.data())
+        if site_data['cam'] == '1':
+            #SET CAM ON OR OFF
+            print 'ON OFF'
+        if site_data['cam'] == '2':
+            # SET CAM ON OR OFF
+            print 'ON OFF'
+
+        web.header('Content-Type', 'application/json')
+        return json.dumps({'status': 'OK'})
+
+
+class Leds(object):
+    def GET(self):
+        web.header('Content-Type', 'application/json')
+        return json.dumps({'inner': 1, 'outer': 1})
+
+    def POST(self):
+        site_data = json.loads(web.data())
+
+        if site_data['light'] == '1':
+            #SET LED ON OR OFF
+            print 'ON OFF'
+        if site_data['light'] == '0':
+            # SET LED ON OR OFF
+            print 'ON OFF'
+
+        web.header('Content-Type', 'application/json')
+        return json.dumps({'status': 'OK'})
+
+
+class Sensor(object):
+    def GET(self):
+        logger = Logger()
+        site_data = web.input()
+        refresh = site_data.refresh
+        logger.debug(str(refresh))
+        tz = getClientTimeZoneByIP()
+        # c_cur = readDHT22.getCurrentClimate(True)
+        #
+        # if tz != 'localtime':
+        #     h = int(tz[1:3])
+        #     m = int(tz[4:])
+        #     delta = timedelta(hours=h, minutes=m)
+        #     recorded = datetime.strptime(c_cur[0], '%Y-%m-%d %H:%M:%S.%f')
+        #     if tz[0] == "+":
+        #         recorded += delta
+        #     else:
+        #         recorded -= delta
+        #     c_cur = [datetime.strftime(recorded, '%Y-%m-%d %H:%M:%S'), c_cur[1], c_cur[2]]
+        #
+        # climate_cur = [c_cur]
+
+        temp = -1
+        hum = -1
+        rec = -1
+        # if len(climate_cur) > 0:
+        #     row = climate_cur[0]
+        #     temp = row[1]
+        #     hum = row[2]
+        #     rec = row[0]
+        web.header('Content-Type', 'application/json')
+        return json.dumps({'temp': temp, 'hum': hum, 'rec': rec})
+
+
 # run
 if __name__ == '__main__':
-    web.httpserver.runsimple(APP.wsgifunc(), (SOCKET_IP, SOCKET_PORT))
-    #APP.run()
-
+    #web.httpserver.runsimple(APP.wsgifunc(), (SOCKET_IP, SOCKET_PORT))
+    APP.run()
